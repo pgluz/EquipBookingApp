@@ -1,0 +1,6 @@
+@EquipBooking.Api_HostAddress = http://localhost:5134
+
+GET {{EquipBooking.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

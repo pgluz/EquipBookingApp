@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using EquipmentBooking.Api.Models;
 
 namespace EquipmentBooking.Api.Data;
 
@@ -8,5 +9,7 @@ public class AppDbContext : DbContext
     {
     }
     
-    // Miejsce na encje
+    public DbSet<User> Users { get; set; }
+    public DbSet<Equipment> Equipments { get; set; }
+    public DbSet<Reservation> Reservations { get; set; }
 }

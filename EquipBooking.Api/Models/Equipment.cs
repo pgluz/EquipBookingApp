@@ -1,6 +1,6 @@
-namespace EquipmentBooking.Api.Models;
+namespace EquipBooking.Api.Models;
 
-public class Equipment
+public class Equip
 {
 public int Id { get; set; }
 public string Name { get; set; } = string.Empty;

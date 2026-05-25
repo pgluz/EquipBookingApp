@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using EquipmentBooking.Api.Models;
+using EquipBooking.Api.Models;
 
-namespace EquipmentBooking.Api.Data;
+namespace EquipBooking.Api.Data;
 
 public class AppDbContext : DbContext
 {
@@ -10,6 +10,6 @@ public class AppDbContext : DbContext
     }
     
     public DbSet<User> Users { get; set; }
-    public DbSet<Equipment> Equipments { get; set; }
+    public DbSet<Equip> Equipments { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
 }

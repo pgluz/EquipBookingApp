@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createEquipment, deleteEquipment, getEquipmentList } from '../services/equipmentService';
+import AdminUsersPermissions from './AdminUsersPermissions';
 import './Admin.css';
 
 const initialForm = {
@@ -272,6 +273,7 @@ function Admin() {
           )}
         </div>
       </section>
+     <AdminUsersPermissions />
     </main>
   );
 }

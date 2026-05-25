@@ -1,6 +1,6 @@
 using System;
 
-namespace EquipmentBooking.Api.Models;
+namespace EquipBooking.Api.Models;
 
 public class Reservation
 {

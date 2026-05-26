@@ -30,7 +30,17 @@ builder.Services.AddAuthorization();
 // Dodanie obsługi kontrolerów
 builder.Services.AddControllers();
 
+// Dodanie obsługi swaggera - na testy
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // Seedowanie administratora (dodawanie z palca, jeśli go nie ma)
 using (var scope = app.Services.CreateScope())

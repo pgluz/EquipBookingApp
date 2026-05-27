@@ -23,6 +23,14 @@ function formatStatus(status) {
   return statusMap[status] || status || 'Brak statusu';
 }
 
+function getStatusColorClass(status) { // Pomocnicza funkcja do kolorowania statusów sprzętu
+  const s = status?.toLowerCase() || '';
+  if (s === 'available' || s === 'dostępny') return 'status-badge-green';
+  if (s === 'unavailable' || s === 'damaged' || s === 'niedostępny' || s === 'uszkodzony') return 'status-badge-red';
+  if (s === 'borrowed' || s === 'wypożyczony') return 'status-badge-yellow';
+  return '';
+}
+
 function equipmentMatchesSearch(equipment, searchText) {
   const normalizedSearch = searchText.trim().toLowerCase();
 
@@ -51,6 +59,8 @@ function Home() {
   const [selectedEquipment, setSelectedEquipment] = useState(null); // Trzyma sprzęt do rezerwacji
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate(); // Nawigacja do rezerwacji
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}'); // Wyciąga role z DB żeby ewentualnie wyświetlić przycisk admina
+  const userRole = currentUser.role || 'User';
 
   function handleLogout() { // Oprogramowanie przycisku do wylogowania
     localStorage.removeItem('token');
@@ -89,6 +99,17 @@ function Home() {
           <h1 className="home-title">Dostępny sprzęt</h1>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
+          
+          {(userRole === 'Admin' || userRole === 'Approver') && (
+            <button 
+              className="home-refresh-button" 
+              style={{ backgroundColor: '#16a34a' }}
+              onClick={() => navigate('/admin')}
+            >
+              Panel Admina
+            </button>
+          )}
+
           <button 
             className="home-refresh-button" 
             style={{ backgroundColor: '#4b5563' }} 
@@ -98,7 +119,7 @@ function Home() {
           </button>
           <button 
             className="home-refresh-button" 
-            style={{ backgroundColor: '#dc2626' }}
+            style={{ backgroundColor: '#dc2626' }} 
             onClick={handleLogout}
           >
             Wyloguj
@@ -166,22 +187,19 @@ function Home() {
                       <td>{description || '-'}</td>
                       <td>{location || '-'}</td>
                       <td>
-                        <span className="home-status">{formatStatus(status)}</span>
+                        <span className={`home-status ${getStatusColorClass(status)}`}>
+                          {status}
+                        </span>
                       </td>
                       <td>
-                        {(status === 'Dostępny' || status === 'Available') ? (
-                          <button 
-                            className="home-refresh-button"
-                            style={{ padding: '6px 12px', minHeight: 'auto' }}
-                            onClick={() => setSelectedEquipment(equipment)}
-                          >
-                            Zarezerwuj
-                          </button>
-                        ) : (
-                          <span style={{ color: '#6b7280', fontSize: '14px', fontStyle: 'italic' }}>
-                            {(status === 'Wypożyczony' || status === 'Borrowed') ? 'Obecnie wypożyczony' : 'Niedostępny'}
-                          </span>
-                        )}
+                        <button 
+                          className="home-refresh-button"
+                          style={{ padding: '6px 12px', minHeight: 'auto' }}
+                          onClick={() => setSelectedEquipment(equipment)}
+                          disabled={status === 'Uszkodzony' || status === 'Damaged'}
+                        >
+                          {(status === 'Uszkodzony' || status === 'Damaged') ? 'Uszkodzony' : 'Zarezerwuj'}
+                        </button>
                       </td>
                     </tr>
                   );

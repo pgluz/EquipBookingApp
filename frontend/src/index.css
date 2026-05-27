@@ -55,11 +55,11 @@ body {
 }
 
 #root {
-  width: 1126px;
+  width: 100%;
   max-width: 100%;
-  margin: 0 auto;
+  margin: 0;
   text-align: center;
-  border-inline: 1px solid var(--border);
+  /* border-inline: 1px solid var(--border); */
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -108,4 +108,20 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* Dynamiczne kolory statusów */
+.status-badge-green {
+  background-color: #dcfce7 !important;
+  color: #166534 !important;
+}
+
+.status-badge-red {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.status-badge-yellow {
+  background-color: #fef08a !important;
+  color: #854d0e !important;
 }

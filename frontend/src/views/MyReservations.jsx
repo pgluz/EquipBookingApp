@@ -9,6 +9,12 @@ function MyReservations() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  function handleLogout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  }
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -34,9 +40,18 @@ function MyReservations() {
           <h1 className="home-title">Moje rezerwacje</h1>
           <p className="home-subtitle">Historia Twoich wypożyczeń i status próśb.</p>
         </div>
-        <button className="home-refresh-button" onClick={() => navigate('/home')}>
-          Wróć do listy sprzętu
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button className="home-refresh-button" onClick={() => navigate('/home')}>
+            Wróć do listy sprzętu
+          </button>
+          <button 
+            className="home-refresh-button" 
+            style={{ backgroundColor: '#dc2626' }} 
+            onClick={handleLogout}
+          >
+            Wyloguj
+          </button>
+        </div>
       </header>
 
       <section className="home-card">

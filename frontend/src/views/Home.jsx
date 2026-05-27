@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getHomeEquipmentList } from '../services/homeEquipmentService';
 import './Home.css';
+import ReservationModal from '../components/ReservationModal';
+import { useNavigate } from 'react-router-dom';
 
 function getEquipmentValue(equipment, camelCaseKey, pascalCaseKey) {
   return equipment?.[camelCaseKey] ?? equipment?.[pascalCaseKey] ?? '';
@@ -46,7 +48,10 @@ function Home() {
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const [selectedEquipment, setSelectedEquipment] = useState(null); // Trzyma sprzęt do rezerwacji
+  const [successMessage, setSuccessMessage] = useState('');
+  const navigate = useNavigate(); // Nawigacja do rezerwacji
+  
   async function loadEquipment() {
     try {
       setIsLoading(true);
@@ -72,9 +77,20 @@ function Home() {
 
   return (
     <main className="home-page">
-      <header className="home-header">
-        <h1 className="home-title">Dostępny sprzęt</h1>
+
+      <header className="home-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 className="home-title">Dostępny sprzęt</h1>
+        </div>
+        <button 
+          className="home-refresh-button" 
+          style={{ backgroundColor: '#4b5563' }} 
+          onClick={() => navigate('/my-reservations')}
+        >
+          Moje rezerwacje
+        </button>
       </header>
+
 
       <section className="home-card">
         <div className="home-toolbar">
@@ -97,6 +113,7 @@ function Home() {
         </div>
 
         {error && <p className="home-alert">{error}</p>}
+        {successMessage && <p className="home-alert" style={{ backgroundColor: '#dcfce7', color: '#166534' }}>{successMessage}</p>}
 
         {isLoading ? (
           <p className="home-empty">Ładowanie listy sprzętu...</p>
@@ -114,6 +131,7 @@ function Home() {
                   <th>Opis</th>
                   <th>Lokalizacja</th>
                   <th>Status</th>
+                  <th>Akcje</th>
                 </tr>
               </thead>
 
@@ -135,6 +153,15 @@ function Home() {
                       <td>
                         <span className="home-status">{formatStatus(status)}</span>
                       </td>
+                      <td>
+                        <button className="home-refresh-button"
+                        style={{ padding: '6px 12px', minHeight: 'auto' }}
+                        onClick={() => setSelectedEquipment(equipment)}
+                        disabled={status !== 'Dostępny' && status !== 'Available'} // Blokujemy rezerwację jeśli nie jest dostępny
+                        >
+                          Zarezerwuj
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -143,6 +170,19 @@ function Home() {
           </div>
         )}
       </section>
+      {/* Renderowanie modala */}
+      {selectedEquipment && (
+        <ReservationModal
+          equipment={selectedEquipment}
+          onClose={() => setSelectedEquipment(null)}
+          onSuccess={() => {
+            setSelectedEquipment(null);
+            setSuccessMessage('Rezerwacja została pomyślnie wysłana do akceptacji!');
+            loadEquipment(); // Opcjonalnie odświeża tabelę
+            setTimeout(() => setSuccessMessage(''), 5000); // Ukrywa komunikat po 5s
+          }}
+        />
+      )}
     </main>
   );
 }

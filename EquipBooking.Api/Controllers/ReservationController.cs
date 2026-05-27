@@ -76,6 +76,32 @@ public class ReservationController : ControllerBase
         return Ok(reservations);
     }
 
+    // GET: Pobranie rezerwacji zalogowanego użytkownika
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyReservations()
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(userIdString, out int userId))
+            return Unauthorized(new { message = "Nie można zidentyfikować zalogowanego użytkownika." });
+
+        var reservations = await _context.Reservations
+            .Include(r => r.Equipment)
+            .Where(r => r.UserId == userId)
+            .OrderByDescending(r => r.StartDate)
+            .Select(r => new 
+            {
+                r.Id,
+                r.Purpose,
+                r.StartDate,
+                r.EndDate,
+                r.Status,
+                EquipmentName = r.Equipment != null ? r.Equipment.Name : "Nieznany sprzęt"
+            })
+            .ToListAsync();
+
+        return Ok(reservations);
+    }
+
     // PUT: Akceptacja rezerwacji
     [HttpPut("{id:int}/accept")]
     public async Task<IActionResult> AcceptReservation(int id)

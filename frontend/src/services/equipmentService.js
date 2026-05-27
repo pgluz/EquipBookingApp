@@ -1,6 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5134/api';
 
-const EQUIPMENT_API_PATHS = ['/equipments', '/equipment'];
+const EQUIPMENT_API_PATHS = ['/equipment'];
 
 function getAuthHeaders() {
   const token = localStorage.getItem('token');

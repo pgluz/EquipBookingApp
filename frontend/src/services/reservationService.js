@@ -88,3 +88,24 @@ export async function rejectReservation(id) {
   if (!response.ok) throw new Error('Nie udało się odrzucić rezerwacji.');
   return response.json();
 }
+
+export async function getReservedDates(equipmentId) { // Do pobierania zajętych dat
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${API_BASE_URL}/Reservation/equipment/${equipmentId}/dates`, {
+    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+  });
+
+  if (!response.ok) throw new Error('Nie udało się pobrać zajętych terminów.');
+  return response.json();
+}
+
+export async function deleteReservation(id) {
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${API_BASE_URL}/Reservation/${id}`, {
+    method: 'DELETE',
+    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+  });
+
+  if (!response.ok) throw new Error('Nie udało się usunąć rezerwacji.');
+  return response.json();
+}

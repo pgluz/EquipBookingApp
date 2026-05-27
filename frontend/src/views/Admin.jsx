@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { createEquipment, deleteEquipment, getEquipmentList } from '../services/equipmentService';
 import { getAllReservations, acceptReservation, rejectReservation } from '../services/reservationService';
 import './Admin.css';
+import { useNavigate } from 'react-router-dom';
 
 const initialForm = {
   name: '',
@@ -45,6 +46,13 @@ function Admin() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  }
 
   async function loadEquipment() {
     try {
@@ -168,11 +176,29 @@ function Admin() {
 
   return (
     <main className="admin-page">
-      <header className="admin-header">
-        <h1 className="admin-title">Panel administratora</h1>
-        <p className="admin-subtitle">
-          Dodawanie i usuwanie sprzętu
-        </p>
+      <header className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 className="admin-title">Panel administratora</h1>
+          <p className="admin-subtitle">
+            Dodawanie i usuwanie sprzętu
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button 
+            className="admin-button" 
+            style={{ backgroundColor: '#4b5563', padding: '8px 16px', minHeight: 'auto' }} 
+            onClick={() => navigate('/home')}
+          >
+            Strona główna
+          </button>
+          <button 
+            className="admin-button" 
+            style={{ backgroundColor: '#dc2626', padding: '8px 16px', minHeight: 'auto' }}
+            onClick={handleLogout}
+          >
+            Wyloguj
+          </button>
+        </div>
       </header>
 
       {error && <p className="admin-alert admin-alert-error">{error}</p>}

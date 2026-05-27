@@ -51,6 +51,12 @@ function Home() {
   const [selectedEquipment, setSelectedEquipment] = useState(null); // Trzyma sprzęt do rezerwacji
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate(); // Nawigacja do rezerwacji
+
+  function handleLogout() { // Oprogramowanie przycisku do wylogowania
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  }
   
   async function loadEquipment() {
     try {
@@ -82,13 +88,22 @@ function Home() {
         <div>
           <h1 className="home-title">Dostępny sprzęt</h1>
         </div>
-        <button 
-          className="home-refresh-button" 
-          style={{ backgroundColor: '#4b5563' }} 
-          onClick={() => navigate('/my-reservations')}
-        >
-          Moje rezerwacje
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button 
+            className="home-refresh-button" 
+            style={{ backgroundColor: '#4b5563' }} 
+            onClick={() => navigate('/my-reservations')}
+          >
+            Moje rezerwacje
+          </button>
+          <button 
+            className="home-refresh-button" 
+            style={{ backgroundColor: '#dc2626' }}
+            onClick={handleLogout}
+          >
+            Wyloguj
+          </button>
+        </div>
       </header>
 
 
@@ -154,13 +169,19 @@ function Home() {
                         <span className="home-status">{formatStatus(status)}</span>
                       </td>
                       <td>
-                        <button className="home-refresh-button"
-                        style={{ padding: '6px 12px', minHeight: 'auto' }}
-                        onClick={() => setSelectedEquipment(equipment)}
-                        disabled={status !== 'Dostępny' && status !== 'Available'} // Blokujemy rezerwację jeśli nie jest dostępny
-                        >
-                          Zarezerwuj
-                        </button>
+                        {(status === 'Dostępny' || status === 'Available') ? (
+                          <button 
+                            className="home-refresh-button"
+                            style={{ padding: '6px 12px', minHeight: 'auto' }}
+                            onClick={() => setSelectedEquipment(equipment)}
+                          >
+                            Zarezerwuj
+                          </button>
+                        ) : (
+                          <span style={{ color: '#6b7280', fontSize: '14px', fontStyle: 'italic' }}>
+                            {(status === 'Wypożyczony' || status === 'Borrowed') ? 'Obecnie wypożyczony' : 'Niedostępny'}
+                          </span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -170,8 +191,7 @@ function Home() {
           </div>
         )}
       </section>
-      {/* Renderowanie modala */}
-      {selectedEquipment && (
+      {selectedEquipment && ( // Renderowanie modala
         <ReservationModal
           equipment={selectedEquipment}
           onClose={() => setSelectedEquipment(null)}

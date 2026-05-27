@@ -30,6 +30,18 @@ builder.Services.AddAuthorization();
 // Dodanie obsługi kontrolerów
 builder.Services.AddControllers();
 
+// Konfiguracja CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // Domyślny port Vite, jak jest inny to trzeba zmienić
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Do użycia w przyszłości
+    });
+});
+
 // Dodanie obsługi swaggera - na testy
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -64,9 +76,11 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.UseAuthentication(); // Musi być przed Authorization
+app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers(); // Mapowanie endpointów (np. AuthController)
+app.MapControllers(); // Mapowanie endpointów
 
 app.Run();

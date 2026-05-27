@@ -74,9 +74,6 @@ function Home() {
     <main className="home-page">
       <header className="home-header">
         <h1 className="home-title">Dostępny sprzęt</h1>
-        <p className="home-subtitle">
-          Lista sprzętu w systemie. Na tym etapie widok zawiera tabelę i wyszukiwarkę.
-        </p>
       </header>
 
       <section className="home-card">

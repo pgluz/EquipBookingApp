@@ -10,6 +10,6 @@ public class AppDbContext : DbContext
     }
     
     public DbSet<User> Users { get; set; }
-    public DbSet<Equip> Equipments { get; set; }
+    public DbSet<Equipment> Equipments { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
 }

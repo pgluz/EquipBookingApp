@@ -134,7 +134,7 @@ function Admin() {
       <header className="admin-header">
         <h1 className="admin-title">Panel administratora</h1>
         <p className="admin-subtitle">
-          Dodawanie i usuwanie sprzętu dostępnego w systemie rezerwacji.
+          Dodawanie i usuwanie sprzętu
         </p>
       </header>
 

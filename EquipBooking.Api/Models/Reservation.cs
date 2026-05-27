@@ -12,7 +12,7 @@ public string Status { get; set; } = "Oczekująca"; // Oczekująca, Zaakceptowan
 
 // Relacje
 public int EquipmentId { get; set; }
-public Equip? Equipment { get; set; }
+public Equipment? Equipment { get; set; }
 
 public int UserId { get; set; }
 public User? User { get; set; }

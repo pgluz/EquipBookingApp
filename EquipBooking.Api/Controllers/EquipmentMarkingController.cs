@@ -7,11 +7,11 @@ namespace EquipBooking.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class EqipmentMarkingController : ControllerBase
+public class EquipmentMarkingController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public EqipmentMarkingController(AppDbContext context)
+    public EquipmentMarkingController(AppDbContext context)
     {
         _context = context;
     }

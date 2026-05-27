@@ -8,11 +8,11 @@ namespace EquipBooking.Api.Controllers;
 [Authorize] // Zabezpiecza cały kontroler - wymaga przekazania tokenu JWT
 [ApiController]
 [Route("api/[controller]")]
-public class EquipController : ControllerBase
+public class EquipmentController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public EquipController(AppDbContext context)
+    public EquipmentController(AppDbContext context)
     {
         _context = context;
     }
@@ -35,7 +35,7 @@ public class EquipController : ControllerBase
             return StatusCode(403, new { message = "Tylko administrator może dodawać sprzęt." });
         }
 
-        var newEquipment = new Equip
+        var newEquipment = new Equipment
         {
             Name = dto.Name,
             Type = dto.Type,

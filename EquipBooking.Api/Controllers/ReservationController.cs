@@ -106,8 +106,9 @@ public class ReservationController : ControllerBase
     [HttpPut("{id:int}/accept")]
     public async Task<IActionResult> AcceptReservation(int id)
     {
-        if (User.Identity?.Name != "admin")
-            return StatusCode(403, new { message = "Tylko administrator może akceptować rezerwacje." });
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        if (userRole != "Admin" && userRole != "Approver")
+            return StatusCode(403, new { message = "Nie masz uprawnień do zarządzania rezerwacjami." });
 
         var reservation = await _context.Reservations.FindAsync(id);
         if (reservation == null)
@@ -126,8 +127,9 @@ public class ReservationController : ControllerBase
     [HttpPut("{id:int}/reject")]
     public async Task<IActionResult> RejectReservation(int id)
     {
-        if (User.Identity?.Name != "admin")
-            return StatusCode(403, new { message = "Tylko administrator może odrzucać rezerwacje." });
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        if (userRole != "Admin" && userRole != "Approver")
+            return StatusCode(403, new { message = "Nie masz uprawnień do zarządzania rezerwacjami." });
 
         var reservation = await _context.Reservations.FindAsync(id);
         if (reservation == null)
@@ -141,6 +143,39 @@ public class ReservationController : ControllerBase
 
         return Ok(new { message = "Rezerwacja została odrzucona." });
     }
+
+    [HttpGet("equipment/{equipmentId:int}/dates")]
+    public async Task<IActionResult> GetReservedDates(int equipmentId)
+    {
+        var dates = await _context.Reservations
+            .Where(r => r.EquipmentId == equipmentId && (r.Status == "Zaakceptowana" || r.Status == "Oczekująca"))
+            .Select(r => new 
+            { 
+                StartDate = r.StartDate, 
+                EndDate = r.EndDate 
+            })
+            .ToListAsync();
+
+        return Ok(dates);
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteReservation(int id)
+    {
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        if (userRole != "Admin" && userRole != "Approver")
+            return StatusCode(403, new { message = "Nie masz uprawnień do usuwania rezerwacji." });
+
+        var reservation = await _context.Reservations.FindAsync(id);
+        if (reservation == null)
+            return NotFound(new { message = "Nie znaleziono rezerwacji o podanym ID." });
+
+        _context.Reservations.Remove(reservation);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Rezerwacja została trwale usunięta." });
+    }
+
 }
 
 // DTO do obierania danych z frontendu
@@ -150,4 +185,5 @@ public class CreateReservationDto
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public string Purpose { get; set; } = string.Empty;
+
 }

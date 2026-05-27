@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createEquipment, deleteEquipment, getEquipmentList } from '../services/equipmentService';
+import { getAllReservations, acceptReservation, rejectReservation } from '../services/reservationService';
 import './Admin.css';
 
 const initialForm = {
@@ -38,6 +39,8 @@ function formatStatus(status) {
 function Admin() {
   const [form, setForm] = useState(initialForm);
   const [equipmentList, setEquipmentList] = useState([]);
+  const [reservations, setReservations] = useState([]);
+  const [isLoadingReservations, setIsLoadingReservations] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -57,8 +60,21 @@ function Admin() {
     }
   }
 
+  async function loadReservations() {
+    try {
+      setIsLoadingReservations(true);
+      const data = await getAllReservations();
+      setReservations(data);
+    } catch (err) {
+      setError(err.message || 'Nie udało się pobrać rezerwacji.');
+    } finally {
+      setIsLoadingReservations(false);
+    }
+  }
+
   useEffect(() => {
     loadEquipment();
+    loadReservations();
   }, []);
 
   function handleInputChange(event) {
@@ -126,6 +142,27 @@ function Admin() {
       await loadEquipment();
     } catch (err) {
       setError(err.message || 'Nie udało się usunąć sprzętu.');
+    }
+  } 
+  
+  async function handleAccept(id) {
+    try {
+      await acceptReservation(id);
+      setSuccessMessage('Rezerwacja została zaakceptowana.');
+      loadReservations();
+      loadEquipment();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleReject(id) {
+    try {
+      await rejectReservation(id);
+      setSuccessMessage('Rezerwacja została odrzucona.');
+      loadReservations();
+    } catch (err) {
+      setError(err.message);
     }
   }
 
@@ -266,6 +303,67 @@ function Admin() {
                       </tr>
                     );
                   })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+        
+        <div className="admin-card" style={{ marginTop: '24px' }}>
+          <h2 className="admin-card-title">Zarządzanie rezerwacjami</h2>
+
+          {isLoadingReservations ? (
+            <p className="admin-empty">Ładowanie rezerwacji...</p>
+          ) : reservations.length === 0 ? (
+            <p className="admin-empty">Brak zgłoszonych rezerwacji.</p>
+          ) : (
+            <div className="admin-table-wrapper">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Użytkownik</th>
+                    <th>Sprzęt</th>
+                    <th>Termin</th>
+                    <th>Cel</th>
+                    <th>Status</th>
+                    <th>Akcje</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reservations.map((res) => (
+                    <tr key={res.id}>
+                      <td><strong>{res.userName}</strong></td>
+                      <td>{res.equipmentName}</td>
+                      <td>
+                        {new Date(res.startDate).toLocaleDateString('pl-PL')} - <br/>
+                        {new Date(res.endDate).toLocaleDateString('pl-PL')}
+                      </td>
+                      <td>{res.purpose}</td>
+                      <td>
+                        <span className="admin-status">{res.status}</span>
+                      </td>
+                      <td>
+                        {res.status === 'Oczekująca' && (
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              className="admin-button"
+                              style={{ padding: '6px 12px', minHeight: 'auto', backgroundColor: '#166534' }}
+                              onClick={() => handleAccept(res.id)}
+                            >
+                              Akceptuj
+                            </button>
+                            <button
+                              className="admin-button-danger"
+                              style={{ padding: '6px 12px' }}
+                              onClick={() => handleReject(res.id)}
+                            >
+                              Odrzuć
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

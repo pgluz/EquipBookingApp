@@ -4,6 +4,7 @@ import Home from './views/Home';
 import Admin from './views/Admin';
 import ProtectedRoute from './components/ProtectedRoute'; 
 import './App.css';
+import MyReservations from './views/MyReservations'
 
 function App() {
   return (
@@ -19,6 +20,15 @@ function App() {
             <ProtectedRoute>
               <Home />
             </ProtectedRoute>
+          } 
+        />
+
+        <Route
+          path="/my-reservations" 
+          element={
+              <ProtectedRoute>
+                <MyReservations />
+              </ProtectedRoute>
           } 
         />
         

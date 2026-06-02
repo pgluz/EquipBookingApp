@@ -40,6 +40,9 @@ builder.Services.AddAuthorization();
 // Dodanie obsługi kontrolerów
 builder.Services.AddControllers();
 
+// Rejestracja serwisu email
+builder.Services.AddScoped<EquipBooking.Api.Services.IEmailService, EquipBooking.Api.Services.EmailService>();
+
 // Konfiguracja CORS
 builder.Services.AddCors(options =>
 {

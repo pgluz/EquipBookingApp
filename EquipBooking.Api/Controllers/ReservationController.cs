@@ -13,10 +13,12 @@ namespace EquipBooking.Api.Controllers;
 public class ReservationController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly EquipBooking.Api.Services.IEmailService _emailService;
 
-    public ReservationController(AppDbContext context)
+    public ReservationController(AppDbContext context, EquipBooking.Api.Services.IEmailService emailService)
     {
         _context = context;
+        _emailService = emailService;
     }
 
     // POST: Tworzenie nowej rezerwacji
@@ -110,7 +112,11 @@ public class ReservationController : ControllerBase
         if (userRole != "Admin" && userRole != "Approver")
             return StatusCode(403, new { message = "Nie masz uprawnień do zarządzania rezerwacjami." });
 
-        var reservation = await _context.Reservations.FindAsync(id);
+        var reservation = await _context.Reservations
+            .Include(r => r.User)
+            .Include(r => r.Equipment)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
         if (reservation == null)
             return NotFound(new { message = "Nie znaleziono rezerwacji o podanym ID." });
 
@@ -119,6 +125,13 @@ public class ReservationController : ControllerBase
 
         reservation.Status = "Zaakceptowana";
         await _context.SaveChangesAsync();
+
+        // Wysyłka maila
+        if (reservation.User != null && !string.IsNullOrEmpty(reservation.User.Email))
+        {
+            string body = $"<h3>Witaj {reservation.User.Login}!</h3><p>Twoja rezerwacja sprzętu <strong>{reservation.Equipment?.Name}</strong> na okres od {reservation.StartDate:dd.MM.yyyy} do {reservation.EndDate:dd.MM.yyyy} została <strong>zaakceptowana</strong>.</p>";
+            await _emailService.SendEmailAsync(reservation.User.Email, "Rezerwacja zaakceptowana", body);
+        }
 
         return Ok(new { message = "Rezerwacja została zaakceptowana." });
     }
@@ -131,7 +144,11 @@ public class ReservationController : ControllerBase
         if (userRole != "Admin" && userRole != "Approver")
             return StatusCode(403, new { message = "Nie masz uprawnień do zarządzania rezerwacjami." });
 
-        var reservation = await _context.Reservations.FindAsync(id);
+        var reservation = await _context.Reservations
+            .Include(r => r.User)
+            .Include(r => r.Equipment)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
         if (reservation == null)
             return NotFound(new { message = "Nie znaleziono rezerwacji." });
 
@@ -140,6 +157,13 @@ public class ReservationController : ControllerBase
 
         reservation.Status = "Odrzucona";
         await _context.SaveChangesAsync();
+
+        // Wysyłka maila
+        if (reservation.User != null && !string.IsNullOrEmpty(reservation.User.Email))
+        {
+            string body = $"<h3>Witaj {reservation.User.Login}.</h3><p>Przykro nam, ale Twoja prośba o rezerwację sprzętu <strong>{reservation.Equipment?.Name}</strong> na okres od {reservation.StartDate:dd.MM.yyyy} do {reservation.EndDate:dd.MM.yyyy} została <strong>odrzucona</strong> przez administratora.</p>";
+            await _emailService.SendEmailAsync(reservation.User.Email, "Rezerwacja odrzucona", body);
+        }
 
         return Ok(new { message = "Rezerwacja została odrzucona." });
     }
